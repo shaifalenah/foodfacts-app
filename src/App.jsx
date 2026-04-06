@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import SearchBar from './components/SearchBar';
-import FoodList from './components/FoodList';
+import { useState } from "react";
+import SearchBar from "./components/SearchBar";
+import FoodList from "./components/FoodList";
 
 function App() {
   const [results, setResults] = useState([]);
@@ -22,11 +22,10 @@ function App() {
       const products = data.products || [];
 
       const filtered = products.filter(
-        (p) => p.product_name && p.product_name.trim() !== ''
+        (p) => p.product_name && p.product_name.trim() !== ""
       );
 
       setResults(filtered);
-
     } catch (err) {
       console.error("ERROR:", err);
       setError("Unable to fetch food data. Please try again later.");
@@ -37,7 +36,7 @@ function App() {
 
   return (
     <div>
-      <h1>FoodFacts</h1>
+      <h1>🍎 FoodFacts</h1>
 
       <SearchBar onSearch={handleSearch} />
 
