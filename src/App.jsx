@@ -1,57 +1,48 @@
-import { useState } from 'react';
-import SearchBar from './components/SearchBar';
-import FoodList from './components/FoodList';
+import { useReducer } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import NavBar from './components/NavBar'
+import HomePage from './pages/HomePage'
+import DetailPage from './pages/DetailPage'
+import SavedPage from './pages/SavedPage'
+
+function savedReducer(state, action) {
+  switch (action.type) {
+    case 'ADD':
+      if (state.find(item => item.code === action.product.code)) {
+        return state
+      }
+      return [...state, action.product]
+
+    case 'REMOVE':
+      return state.filter(item => item.code !== action.code)
+
+    default:
+      return state
+  }
+}
 
 function App() {
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const handleSearch = async (query) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const url = `https://world.openfoodfacts.org/api/v2/search?categories_tags=${encodeURIComponent(query)}&page_size=10`;
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      console.log("DATA:", data);
-
-      const products = data.products || [];
-
-      const filtered = products.filter(
-        (p) => p.product_name && p.product_name.trim() !== ''
-      );
-
-      setResults(filtered);
-
-    } catch (err) {
-      console.error("ERROR:", err);
-      setError("Unable to fetch food data. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [saved, dispatch] = useReducer(savedReducer, [])
 
   return (
     <div>
-      <h1>FoodFacts</h1>
+      <NavBar savedCount={saved.length} />
 
-      <SearchBar onSearch={handleSearch} />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
 
-      {loading && <p>Loading...</p>}
+        <Route
+          path="/product/:barcode"
+          element={<DetailPage saved={saved} dispatch={dispatch} />}
+        />
 
-      {error && <p>{error}</p>}
-
-      {!loading && results.length === 0 && (
-        <p>Search for a food to begin</p>
-      )}
-
-      <FoodList products={results} />
+        <Route
+          path="/saved"
+          element={<SavedPage saved={saved} dispatch={dispatch} />}
+        />
+      </Routes>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
